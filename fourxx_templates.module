@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * Implements hook_theme_suggestions_page() to set 4xx template suggestions
+ */
+function fourxx_templates_theme_suggestions_page(array $variables) {
+  // take apart the current path and get the normal suggestions
+  $path_args = explode('/', trim(\Drupal::service('path.current')->getPath(), '/'));
+  $suggestions = theme_get_suggestions($path_args, 'page');
+
+  // get the route
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  $route_parts = explode('.', $route_name);
+
+  // is it system.4xx ? 
+  if (count($route_parts) == 2 && 
+      $route_parts[0] === 'system') {
+        $code = $route_parts[1];
+        if (is_numeric($code) && $code >= 400 and $code < 500) {
+          // suggest template page--4xx.html.twig (e.g., page--404.html.twig)
+          $suggestions[] = 'page__' . $route_parts[1];
+        }
+  }
+
+  return $suggestions;
+}
